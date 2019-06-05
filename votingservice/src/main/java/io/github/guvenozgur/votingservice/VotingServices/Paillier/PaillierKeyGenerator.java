@@ -1,18 +1,27 @@
 package io.github.guvenozgur.votingservice.VotingServices.Paillier;
 
+import io.github.guvenozgur.votingservice.IVotingServices.IPaillier.IPaillierDecryptor;
+import io.github.guvenozgur.votingservice.IVotingServices.IPaillier.IPaillierKeyGenerator;
 import io.github.guvenozgur.votingservice.VotingModels.PaillierVotingModel;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
-public class PaillierKeyGenerator {
+public class PaillierKeyGenerator implements IPaillierKeyGenerator {
 
-    // TODO : big prime number generator will be developed
+    @Override
+    public List<Map> generateKeyPairs() {
+        return paillierKeyGenerator();
+    }
 
-    public PaillierKeyGenerator() {
+    // TODO : big prime number generator
+
+    private List<Map> paillierKeyGenerator() {
 
         PaillierVotingModel paillierVotingModel = new PaillierVotingModel();
         paillierVotingModel.setP(new BigInteger("93258190053368335360689362753326970901156376714515609683660739891440089168229"));
@@ -25,20 +34,27 @@ public class PaillierKeyGenerator {
         paillierVotingModel.setCarmichaelValue(carmichael(paillierVotingModel.getP(), paillierVotingModel.getQ()));
 
         // gcd(L(g^lambda mod n^2), n) must be equal 1
-        do {
+        //do {
             //g = Math.random(bit_len * 2, n_square);
             paillierVotingModel.setCarmichaelValue(new BigInteger("11738903305571125623357275755757996486023846696891322291725888051491778958401872825508696108745305238256712612601774764526182946475828957413791020910054354778828028161359453840988595296293067035051332878398563806666838929962328706202876675246266501939283785729475724608589511297160296153098856792187205327542"));
             // Until gcd(L(g^lambda mod n^2), n) is equal 1
-        } while (false);
+        //} while (false);
 
-        Map privateKeyMap = new HashMap<String, String>();
+        Map<String, String> privateKeyMap = new HashMap<>();
         privateKeyMap.put("p", new String(paillierVotingModel.getP().toByteArray()));
         privateKeyMap.put("q", new String(paillierVotingModel.getQ().toByteArray()));
 
-        Map publicKeyMap = new HashMap<String, String>();
+        Map<String, String> publicKeyMap = new HashMap<>();
 
-        publicKeyMap.put("n", paillierVotingModel.getN());
-        publicKeyMap.put("g", paillierVotingModel.getG());
+        publicKeyMap.put("n", new String(paillierVotingModel.getN().toByteArray()));
+        publicKeyMap.put("g", new String(paillierVotingModel.getG().toByteArray()));
+
+        List<Map> keyPairs = new ArrayList<>();
+
+        keyPairs.add(publicKeyMap);
+        keyPairs.add(privateKeyMap);
+
+        return keyPairs;
     }
 
 
@@ -48,16 +64,17 @@ public class PaillierKeyGenerator {
                 (u.subtract(BigInteger.ONE).divide(n)) : null;
     }
 
-    public static BigInteger carmichael(BigInteger p, BigInteger q) {
+    private static BigInteger carmichael(BigInteger p, BigInteger q) {
         return lcm(eulerPhi(p), eulerPhi(q));
     }
 
-    public static BigInteger lcm(BigInteger p, BigInteger q) {
+    private static BigInteger lcm(BigInteger p, BigInteger q) {
         return p.multiply(q).divide(p.gcd(q));
     }
 
-    public static BigInteger eulerPhi(BigInteger p) {       // Euler's totient function
+    private static BigInteger eulerPhi(BigInteger p) {       // Euler's totient function
         return p.subtract(BigInteger.ONE);
     }
+
 
 }

@@ -11,6 +11,8 @@ public class PaillierVotingModel extends VotingModel {
     private BigInteger g;
     private BigInteger nSquare;
 
+    private int bitLength;
+
     public BigInteger getP() {
         return p;
     }
@@ -58,5 +60,13 @@ public class PaillierVotingModel extends VotingModel {
 
     public void setG(BigInteger g) {
         this.g = g;
+    }
+
+    public int getBitLength() {
+        return bitLength;
+    }
+
+    public void setBitLength(int bitLength) {
+        this.bitLength = bitLength;
     }
 }
