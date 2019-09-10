@@ -1,6 +1,5 @@
 package io.github.guvenozgur.votingservice.VotingServices.Paillier;
 
-import io.github.guvenozgur.votingservice.IVotingServices.IPaillier.IPaillierDecryptor;
 import io.github.guvenozgur.votingservice.IVotingServices.IPaillier.IPaillierKeyGenerator;
 import io.github.guvenozgur.votingservice.VotingModels.PaillierVotingModel;
 import org.springframework.stereotype.Service;
@@ -14,14 +13,26 @@ import java.util.Map;
 @Service
 public class PaillierKeyGenerator implements IPaillierKeyGenerator {
 
-    @Override
-    public List<Map> generateKeyPairs() {
-        return paillierKeyGenerator();
+    private static BigInteger carmichael(BigInteger p, BigInteger q) {
+        return lcm(eulerPhi(p), eulerPhi(q));
     }
 
     // TODO : big prime number generator
 
-    private List<Map> paillierKeyGenerator() {
+    private static BigInteger lcm(BigInteger p, BigInteger q) {
+        return p.multiply(q).divide(p.gcd(q));
+    }
+
+    private static BigInteger eulerPhi(BigInteger p) {       // Euler's totient function
+        return p.subtract(BigInteger.ONE);
+    }
+
+    @Override
+    public PaillierVotingModel generateKeyPairs() {
+        return paillierKeyGenerator();
+    }
+
+    private PaillierVotingModel paillierKeyGenerator() {
 
         PaillierVotingModel paillierVotingModel = new PaillierVotingModel();
         paillierVotingModel.setP(new BigInteger("93258190053368335360689362753326970901156376714515609683660739891440089168229"));
@@ -35,45 +46,30 @@ public class PaillierKeyGenerator implements IPaillierKeyGenerator {
 
         // gcd(L(g^lambda mod n^2), n) must be equal 1
         //do {
-            //g = Math.random(bit_len * 2, n_square);
-            paillierVotingModel.setCarmichaelValue(new BigInteger("11738903305571125623357275755757996486023846696891322291725888051491778958401872825508696108745305238256712612601774764526182946475828957413791020910054354778828028161359453840988595296293067035051332878398563806666838929962328706202876675246266501939283785729475724608589511297160296153098856792187205327542"));
-            // Until gcd(L(g^lambda mod n^2), n) is equal 1
+        //g = Math.random(bit_len * 2, n_square);
+        paillierVotingModel.setCarmichaelValue(new BigInteger("11738903305571125623357275755757996486023846696891322291725888051491778958401872825508696108745305238256712612601774764526182946475828957413791020910054354778828028161359453840988595296293067035051332878398563806666838929962328706202876675246266501939283785729475724608589511297160296153098856792187205327542"));
+        // Until gcd(L(g^lambda mod n^2), n) is equal 1
         //} while (false);
 
-        Map<String, String> privateKeyMap = new HashMap<>();
-        privateKeyMap.put("p", new String(paillierVotingModel.getP().toByteArray()));
-        privateKeyMap.put("q", new String(paillierVotingModel.getQ().toByteArray()));
+        Map<String, BigInteger> privateKeyMap = new HashMap<>();
+        privateKeyMap.put("p", paillierVotingModel.getP());
+        privateKeyMap.put("q", paillierVotingModel.getQ());
 
-        Map<String, String> publicKeyMap = new HashMap<>();
+        Map<String, BigInteger> publicKeyMap = new HashMap<>();
 
-        publicKeyMap.put("n", new String(paillierVotingModel.getN().toByteArray()));
-        publicKeyMap.put("g", new String(paillierVotingModel.getG().toByteArray()));
+        publicKeyMap.put("n", paillierVotingModel.getN());
+        publicKeyMap.put("g", paillierVotingModel.getG());
 
-        List<Map> keyPairs = new ArrayList<>();
+        paillierVotingModel.setPrivateKey(privateKeyMap);
+        paillierVotingModel.setPublicKey(publicKeyMap);
 
-        keyPairs.add(publicKeyMap);
-        keyPairs.add(privateKeyMap);
-
-        return keyPairs;
+        return paillierVotingModel;
     }
-
 
     // Carmichael function: L(u) = (u-1)/(n)
     public BigInteger L(BigInteger u, BigInteger n) {
         return (u.compareTo(BigInteger.ZERO) > 0 && u.compareTo(BigInteger.ZERO) > 0) ?
                 (u.subtract(BigInteger.ONE).divide(n)) : null;
-    }
-
-    private static BigInteger carmichael(BigInteger p, BigInteger q) {
-        return lcm(eulerPhi(p), eulerPhi(q));
-    }
-
-    private static BigInteger lcm(BigInteger p, BigInteger q) {
-        return p.multiply(q).divide(p.gcd(q));
-    }
-
-    private static BigInteger eulerPhi(BigInteger p) {       // Euler's totient function
-        return p.subtract(BigInteger.ONE);
     }
 
 

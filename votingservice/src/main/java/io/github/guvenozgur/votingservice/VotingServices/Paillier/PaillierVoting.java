@@ -9,13 +9,12 @@ import java.util.Random;
 
 @Service
 public class PaillierVoting implements IPaillierVoting {
+
+
     public static void main(String[] args) {
 
-
         int bitLen = new BigInteger("4").bitLength();
-
         System.out.println(bitLen + ":" + new BigInteger(bitLen, new Random()));
-
 
     }
 
@@ -23,7 +22,6 @@ public class PaillierVoting implements IPaillierVoting {
     public String vote(String candidateId, PaillierVotingModel votingModel) {
 
         BigInteger random;
-
         // TODO: find a chiper way to get a randomValue
         do {
             random = new BigInteger(votingModel.getN().bitLength(), new Random());
